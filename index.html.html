@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173a63">
+<title>チケドロ！｜先着販売トレーニング</title>
+<style>
+*{box-sizing:border-box}
+:root{--navy:#173a63;--blue:#2f6fae;--light:#f4f7fa;--line:#d7dee7;--red:#c93636;--text:#1d2733;--muted:#6d7885}
+body{margin:0;background:#eef2f6;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans JP",Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;background:#fff;max-width:620px;margin:auto;box-shadow:0 0 30px #00000010}
+.header{background:var(--navy);color:#fff;padding:14px 18px 12px;position:sticky;top:0;z-index:20}
+.brand{font-weight:800;letter-spacing:.04em;font-size:19px}
+.brand span{font-size:12px;font-weight:500;opacity:.85;margin-left:7px}
+.stepbar{display:flex;align-items:center;gap:5px;margin-top:12px;font-size:12px}
+.step{width:25px;height:25px;border-radius:50%;border:1px solid #ffffff66;display:grid;place-items:center;background:#ffffff16}
+.step.on{background:#fff;color:var(--navy);font-weight:800}
+.step.done{background:#8eb6d8;border-color:#8eb6d8}
+.stepLine{height:2px;flex:1;background:#ffffff55}
+.main{padding:20px 16px 38px}
+.card{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;margin-bottom:14px}
+.notice{background:#f8fafc;border-left:4px solid var(--navy);padding:13px 14px;margin:10px 0;line-height:1.75;font-size:14px}
+h1{font-size:23px;margin:0 0 8px}
+h2{font-size:18px;margin:0 0 12px}
+h3{font-size:15px;margin:18px 0 8px}
+p{line-height:1.75;margin:7px 0}
+.small{font-size:12px;color:var(--muted)}
+.center{text-align:center}
+.startTime{font-size:28px;font-weight:900;color:var(--navy);margin:6px 0 18px}
+.countLabel{text-align:center;color:var(--muted);font-size:13px}
+.count{font-size:64px;line-height:1.05;font-weight:900;letter-spacing:.03em;text-align:center;color:var(--navy);margin:7px 0 16px;font-variant-numeric:tabular-nums}
+.now{text-align:center;font-size:14px;color:var(--muted)}
+.eventTop{border-bottom:1px solid var(--line);padding-bottom:15px;margin-bottom:15px}
+.sale{display:inline-block;background:var(--red);color:#fff;font-weight:800;padding:5px 9px;border-radius:4px;font-size:12px}
+.eventTitle{font-size:20px;font-weight:850;margin:10px 0 5px}
+.venue{font-size:14px;color:var(--muted)}
+.eventBox,.ticketBox{border:1px solid #cdd6e0;border-radius:10px;padding:15px;margin:10px 0;background:#fff}
+.eventBox:active,.ticketBox:active{background:#f3f7fb}
+.eventMeta{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+.ticketName{font-weight:800}
+.price{font-size:18px;font-weight:900;margin-top:5px}
+.arrow{float:right;color:var(--blue);font-weight:900}
+.btn{width:100%;border:0;border-radius:6px;padding:14px 16px;background:var(--red);color:#fff;font-weight:800;margin-top:14px}
+.btn.secondary{background:var(--navy)}
+.btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.required{color:var(--red);font-size:12px;font-weight:700}
+.field{margin:14px 0}
+label{display:block;font-size:14px;font-weight:700;margin-bottom:7px}
+input[type=text],input[type=email]{width:100%;border:1px solid #c7d0da;border-radius:7px;padding:13px;background:#fff;outline:none}
+input:focus,input.valid{border:2px solid #2c73b5;box-shadow:0 0 0 3px #2c73b51a}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fakeRadio,.check{display:flex;align-items:center;gap:9px;padding:12px;border:1px solid var(--line);border-radius:8px;margin:8px 0}
+.check input,.fakeRadio input{accent-color:var(--red);width:18px;height:18px}
+.noticeModal{position:fixed;inset:0;background:#00000055;z-index:50;display:none;align-items:flex-start;justify-content:center;padding:9vh 12px 20px}
+.modalBox{background:#fff;width:min(590px,100%);max-height:78vh;overflow:auto;border-radius:12px;box-shadow:0 10px 35px #0005;padding:20px}
+.modalBox h2{color:var(--navy)}
+.progressText{font-size:12px;color:var(--muted);margin-bottom:12px}
+.infoBox{background:#eef5fb;border:1px solid #c8dbea;border-radius:8px;padding:11px 12px;font-size:13px;line-height:1.7}
+.errorPage{padding:50px 18px;text-align:center}
+.errorIcon{font-size:34px}
+.lock{padding:60px 20px;text-align:center}
+.done{padding:35px 15px;text-align:center}
+.doneIcon{font-size:54px}
+.record{background:#f6f8fa;border-radius:10px;padding:15px;text-align:left;margin-top:18px}
+.record div{display:flex;justify-content:space-between;border-bottom:1px solid #e1e5ea;padding:8px 0;font-size:14px}
+.record div:last-child{border:0}
+.guide{font-size:12px;line-height:1.65;background:#f7f9fb;border:1px solid #e0e6ec;border-radius:8px;padding:10px 11px;margin-bottom:12px}
+.footer{padding:18px;text-align:center;font-size:11px;color:#7a8490;border-top:1px solid var(--line)}
+@media(min-width:700px){body{padding:20px}.app{border-radius:14px;overflow:hidden}}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<div class="noticeModal" id="noticeModal">
+  <div class="modalBox">
+    <h2>注意事項</h2>
+    <p>このページから先は、架空のチケット販売を想定した練習画面です。</p>
+    <div class="notice">
+      実際のチケット販売サービスとは異なる仕組み・画面・操作方法を使用しています。<br>
+      本サイトでの操作が実際の販売で有効であること、またチケットを取得できることを保証するものではありません。<br>
+      本サイトは特定の企業、チケット販売事業者、アーティスト、会場等とは関係ありません。
+    </div>
+    <div class="notice">
+      練習では実在する個人情報を入力しないでください。画面の案内に従い、架空の情報を使用してください。
+    </div>
+    <label class="check"><input type="checkbox" id="modalAgree"> 注意事項を確認し、同意して進みます。</label>
+    <button class="btn" id="modalBtn" disabled>同意して進む</button>
+  </div>
+</div>
+
+<script>
+const app=document.getElementById("app");
+const modal=document.getElementById("noticeModal");
+let state={
+  page:"consent",startAt:null,selectedTicket:null,qty:1,
+  email:"",email2:"",last:"",first:"",lastKana:"",firstKana:"",
+  finished:false, startedAt:null, actionCount:0
+};
+const steps=["お客様情報","決済・取引","最終確認","完了"];
+
+function pad(n){return String(n).padStart(2,"0")}
+function now(){return new Date()}
+function fmt(d){return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+function timeOnly(d){return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
+function futureStart(){
+  const n=new Date(Date.now()+30000);
+  n.setSeconds(0,0);
+  if(n.getTime()<=Date.now()+29000)n.setMinutes(n.getMinutes()+1);
+  return n;
+}
+function vibrate(){try{if("vibrate"in navigator)navigator.vibrate(180)}catch(e){}}
+function save(){sessionStorage.setItem("tiketTrainingState",JSON.stringify(state))}
+function load(){
+  try{const x=sessionStorage.getItem("tiketTrainingState");if(x)state=Object.assign(state,JSON.parse(x))}catch(e){}
+}
+function push(url){history.pushState({page:state.page}, "", url)}
+function setPage(page,url){
+  state.page=page;state.actionCount++;save();push(url||location.pathname+"#"+page);render();
+}
+function header(step){
+  const active=step<0?0:step;
+  return `<header class="header"><div class="brand">🎫 チケドロ！<span>先着販売トレーニング</span></div>
+  <div class="stepbar">${steps.map((s,i)=>`<div class="step ${i<active?"done":""} ${i===active?"on":""}">${i===3?"✓":i+1}</div>${i<3?'<div class="stepLine"></div>':""}`).join("")}</div></header>`;
+}
+function render(){
+  if(state.page==="consent")return renderConsent();
+  if(state.page==="wait")return renderWait();
+  if(state.page==="event")return renderEvent();
+  if(state.page==="ticket")return renderTicket();
+  if(state.page==="info")return renderInfo();
+  if(state.page==="payment")return renderPayment();
+  if(state.page==="final")return renderFinal();
+  if(state.page==="done")return renderDone();
+}
+function renderConsent(){
+  app.innerHTML=`<div class="main">
+    <div class="card">
+      <div class="small">TRAINING SITE / FIRST-COME, FIRST-SERVED</div>
+      <h1>先着販売トレーニング</h1>
+      <p>実際の先着販売を想定した、架空のチケット購入練習サイトです。</p>
+      <h3>ご利用前に必ずお読みください</h3>
+      <div class="notice"><b>このサイトは実在の販売サービスではありません。</b><br>
+      画面、URL、操作、混雑状況などは練習のために独自に再現しています。実際の販売サイトとは異なる場合があります。</div>
+      <div class="notice">本サイトの練習結果は、実際のチケット取得を保証するものではありません。また、本サイトの利用によってチケットを取得できなかった場合などについて、運営者は責任を負いません。</div>
+      <div class="notice">特定の企業・チケット販売事業者・アーティスト・会場等とは一切関係ありません。</div>
+      <div class="notice">個人情報保護のため、実在するメールアドレスや氏名は入力しないでください。練習中は指定された架空情報を使用してください。</div>
+      <label class="check"><input type="checkbox" id="agree"> 上記の注意事項を確認し、内容に同意します。</label>
+      <button class="btn" id="startBtn" disabled>同意して練習を開始</button>
+    </div>
+  </div><div class="footer">チケドロ！｜先着販売トレーニング</div>`;
+  const a=document.getElementById("agree"),b=document.getElementById("startBtn");
+  a.onchange=()=>b.disabled=!a.checked;
+  b.onclick=()=>{state.startAt=futureStart().getTime();state.startedAt=Date.now();save();setPage("wait","#wait")};
+}
+function renderWait(){
+  app.innerHTML=header(0)+`<main class="main"><div class="card center">
+    <div class="small">練習販売開始予定</div>
+    <div class="startTime" id="startTime">--:--:00</div>
+    <div class="countLabel">開始まで</div>
+    <div class="count" id="count">--:--</div>
+    <div class="now">現在時刻　<span id="now">--:--:--</span></div>
+    <div class="infoBox" style="margin-top:18px;text-align:left">
+      <b>🔒 個人情報保護のため</b><br>
+      メールアドレス → <b>ABC</b><br>
+      名前 → <b>架空 太郎</b>（カクウ タロウ）
+    </div>
+    <div class="guide" style="margin-top:12px;text-align:left"><b>💡 練習ガイド</b><br>
+      販売開始後は、表示内容やURLを確認しながら操作してください。ページによって「戻る」「再読み込み」など有効な操作が変わる場合があります。
+    </div>
+  </div></main>`;
+  const target=new Date(state.startAt);
+  document.getElementById("startTime").textContent=timeOnly(target);
+  const timer=setInterval(()=>{
+    const diff=state.startAt-Date.now();
+    document.getElementById("now").textContent=timeOnly(new Date());
+    if(diff<=0){
+      clearInterval(timer);vibrate();state.startedAt=Date.now();save();setPage("event","#event");
+    }else{
+      const sec=Math.ceil(diff/1000);
+      document.getElementById("count").textContent=`${pad(Math.floor(sec/60))}:${pad(sec%60)}`;
+    }
+  },100);
+}
+function renderEvent(){
+  app.innerHTML=header(-1)+`<main class="main">
+    <div class="guide"><b>💡 練習ガイド</b><br>アクセスが集中している場合、すぐに次のページへ進めないことがあります。画面の内容とURLを確認し、状況に応じて再読み込み・戻る操作を試してみましょう。</div>
+    <div class="card">
+      <div class="eventTop"><div class="small">7777年 7月7日</div><span class="sale">発売中</span>
+      <div class="eventTitle">チケドロツアー IN 架空販売</div><div class="venue">チケドロアリーナ（チケドロ県）</div></div>
+      <button class="eventBox" style="width:100%;text-align:left" onclick="openSchedule()">
+        <div class="eventMeta"><b>7777年7月7日</b><b>›</b></div>
+        <div class="small" style="margin-top:8px">開場 16:00　　開演 18:00</div>
+      </button>
+    </div>
+  </main>`;
+}
+function openSchedule(){state.page="ticketList";renderTicketList()}
+function renderTicketList(){
+  app.innerHTML=header(-1)+`<main class="main"><div class="guide"><b>💡 練習ガイド</b><br>券種の表示状況は練習回によって変化する場合があります。</div><div class="card">
+  <div class="small">7777年7月7日 / 開演 18:00</div><h2>席種を選択してください</h2>
+  <button class="ticketBox" style="width:100%;text-align:left" onclick="selectTicket('全席指定（1名券）',10000)"><span class="ticketName">全席指定（1名券）</span><span class="arrow">›</span><div class="price">￥10,000</div></button>
+  <button class="ticketBox" style="width:100%;text-align:left" onclick="selectTicket('全席指定（2名券）',20000)"><span class="ticketName">全席指定（2名券）</span><span class="arrow">›</span><div class="price">￥20,000</div></button>
+  </div></main>`;
+}
+function selectTicket(name,price){state.selectedTicket={name,price};save();openModal()}
+function openModal(){
+  modal.style.display="flex";
+  document.getElementById("modalAgree").checked=false;
+  document.getElementById("modalBtn").disabled=true;
+}
+document.getElementById("modalAgree").onchange=e=>document.getElementById("modalBtn").disabled=!e.target.checked;
+document.getElementById("modalBtn").onclick=()=>{modal.style.display="none";setPage("info","#info")};
+
+function inputField(label,id,ph,type="text"){
+  return `<div class="field"><label>${label} <span class="required">*必須</span></label><input id="${id}" type="${type}" placeholder="${ph}" value="${state[id]||""}" autocomplete="off"></div>`;
+}
+function renderInfo(){
+  app.innerHTML=header(0)+`<main class="main"><div class="progressText">1 / 4　お客様情報</div>
+  <div class="card"><h2>お客様情報</h2><div class="infoBox">この練習では架空情報を使用します。<br>メールアドレス：<b>ABC</b>　氏名：<b>架空 太郎</b>（カクウ タロウ）</div>
+  ${inputField("メールアドレス","email","今回はABCと記入してください","email")}
+  ${inputField("メールアドレス確認用","email2","今回はABCと記入してください","email")}
+  <h3>氏名</h3><div class="row">${inputField("姓","last","架空")}${inputField("名","first","太郎")}</div>
+  <h3>フリガナ</h3><div class="row">${inputField("セイ","lastKana","カクウ")}${inputField("メイ","firstKana","タロウ")}</div>
+  <button class="btn" id="nextInfo">次へ進む</button></div></main>`;
+  ["email","email2","last","first","lastKana","firstKana"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.oninput=()=>{state[id]=el.value;el.classList.toggle("valid",el.value.length>0);save()};
+  });
+  document.getElementById("nextInfo").onclick=()=>{
+    const ok=["email","email2","last","first","lastKana","firstKana"].every(k=>state[k].trim());
+    if(!ok||state.email.toUpperCase()!=="ABC"||state.email2.toUpperCase()!=="ABC"){alert("練習用の指定情報を入力してください。メールアドレスはABCです。");return}
+    setPage("payment","#payment");
+  };
+}
+function renderPayment(){
+  app.innerHTML=header(1)+`<main class="main"><div class="progressText">2 / 4　決済・取引</div>
+  <div class="card"><h2>決済・取引方法の選択</h2><h3>取引方法の選択</h3>
+  <label class="fakeRadio"><input type="radio" checked disabled> 店頭</label>
+  <h3>決済方法の選択</h3>
+  <label class="fakeRadio"><input type="radio" checked disabled> コンビニ決済</label>
+  <button class="btn" onclick="setPage('final','#final')">次へ進む</button></div></main>`;
+}
+function renderFinal(){
+  app.innerHTML=header(2)+`<main class="main"><div class="progressText">3 / 4　最終確認</div>
+  <div class="card"><h2>注意事項への同意</h2>
+  <div class="notice"><b>[必須] 1．転売の禁止</b><br>転売を目的としたチケットの購入は禁止されています。転売が発覚した場合、入場できない場合があります。</div>
+  <label class="check"><input type="checkbox" class="finalCheck"> 同意する</label>
+  <div class="notice"><b>[必須] 2．会場内での撮影について</b><br>会場内では、公演中の前後を含め、指定された場所以外での撮影は禁止されています。</div>
+  <label class="check"><input type="checkbox" class="finalCheck"> 同意する</label>
+  <button class="btn" id="finishBtn" disabled onclick="finish()">購入を確定する</button></div></main>`;
+  const checks=[...document.querySelectorAll(".finalCheck")],btn=document.getElementById("finishBtn");
+  checks.forEach(c=>c.onchange=()=>btn.disabled=!checks.every(x=>x.checked));
+}
+function finish(){state.finished=true;save();vibrate();setPage("done","#done")}
+function renderDone(){
+  const elapsed=((Date.now()-state.startedAt)/1000).toFixed(2);
+  app.innerHTML=header(3)+`<main class="main"><div class="card done"><div class="doneIcon">🎉</div><h1>購入完了</h1>
+  <p>チケットの購入手続きが完了しました。</p>
+  <div class="record"><b>今回の練習記録</b>
+  <div><span>練習開始から</span><b>${elapsed}秒</b></div>
+  <div><span>画面操作回数</span><b>${state.actionCount}回</b></div>
+  <div><span>結果</span><b>購入成功</b></div></div>
+  <button class="btn" onclick="location.reload()">もう一度練習する</button>
+  </div></main><div class="footer">これは架空の練習結果です。実際のチケット取得を保証するものではありません。</div>`;
+}
+window.addEventListener("popstate",()=>{
+  if(state.page==="event"||state.page==="ticketList")render();
+  else render();
+});
+load();
+render();
+</script>
+</body>
+</html>
